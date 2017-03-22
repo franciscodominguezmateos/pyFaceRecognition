@@ -51,13 +51,19 @@ import dlib
 import glob
 from skimage import io
 import cv2
+import numpy as np
+import pickle
 
 print dlib.__version__
 print dlib.__file__
 print dlib.__path__
 from distutils.sysconfig import get_python_lib
 print(get_python_lib())
-if len(sys.argv) != 4:
+
+basepath="/home/francisco/face_recognition"
+people= os.listdir(basepath)
+
+if len(sys.argv) != 3:
     print(
         "Call this program like this:\n"
         "   ./face_recognition.py shape_predictor_68_face_landmarks.dat dlib_face_recognition_resnet_model_v1.dat ../examples/faces\n"
@@ -68,7 +74,7 @@ if len(sys.argv) != 4:
 
 predictor_path = sys.argv[1]
 face_rec_model_path = sys.argv[2]
-faces_folder_path = sys.argv[3]
+faces_folder_path = basepath+"/carlos_dominguez"
 
 # Load all the models we need: a detector to find the faces, a shape predictor
 # to find face landmarks so we can precisely localize the face, and finally the
@@ -79,65 +85,63 @@ facerec = dlib.face_recognition_model_v1(face_rec_model_path);
 
 win = dlib.image_window()
 
-cap0 = cv2.VideoCapture(0)
+people_descriptor={}
 # Now process all the images
-#for f in glob.glob(os.path.join(faces_folder_path, "*.jpg")):
-while True:
-    ret,img0=cap0.read()
-    #ret,img1=cap1.read()
-    if not ret:
-        print "Algo valla"
+for p in people:
+    faces_folder_path=basepath+"/"+p
+    print faces_folder_path
+    face_descriptor_list=[]
+    for f in glob.glob(faces_folder_path+"/*.jpg"):
+        print("Processing file: {}".format(f))
+        img = io.imread(f)
     
-
-    #print("Processing file: {}".format(f))
-    #img = io.imread(f)
-    cv2.imshow("0",img0)
-    #cv2.imshow("1",img1)
-    k=cv2.waitKey(10)
-
-    img=cv2.cvtColor(img0,cv2.COLOR_BGR2RGB)
-    print img.shape
-
-    win.clear_overlay()
-    win.set_image(img)
-
-    # Ask the detector to find the bounding boxes of each face. The 1 in the
-    # second argument indicates that we should upsample the image 1 time. This
-    # will make everything bigger and allow us to detect more faces.
-    dets = detector(img, 1)
-    print("Number of faces detected: {}".format(len(dets)))
-
-    # Now process each face we found.
-    for k, d in enumerate(dets):
-        print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
-            k, d.left(), d.top(), d.right(), d.bottom()))
-        # Get the landmarks/parts for the face in box d.
-        shape = sp(img, d)
-        # Draw the face landmarks on the screen so we can see what face is currently being processed.
         win.clear_overlay()
-        win.add_overlay(d);
-        win.add_overlay(shape)
-
-        # Compute the 128D vector that describes the face in img identified by
-        # shape.  In general, if two face descriptor vectors have a Euclidean
-        # distance between them less than 0.6 then they are from the same
-        # person, otherwise they are from different people.  He we just print
-        # the vector to the screen.
-        face_descriptor = facerec.compute_face_descriptor(img, shape);
-        print(face_descriptor);
-        # It should also be noted that you can also call this function like this:
-        #  face_descriptor = facerec.compute_face_descriptor(img, shape, 100);
-        # The version of the call without the 100 gets 99.13% accuracy on LFW
-        # while the version with 100 gets 99.38%.  However, the 100 makes the
-        # call 100x slower to execute, so choose whatever version you like.  To
-        # explain a little, the 3rd argument tells the code how many times to
-        # jitter/resample the image.  When you set it to 100 it executes the
-        # face descriptor extraction 100 times on slightly modified versions of
-        # the face and returns the average result.  You could also pick a more
-        # middle value, such as 10, which is only 10x slower but still gets an
-        # LFW accuracy of 99.3%.
-
-
-        dlib.hit_enter_to_continue()
+        win.set_image(img)
+    
+        # Ask the detector to find the bounding boxes of each face. The 1 in the
+        # second argument indicates that we should upsample the image 1 time. This
+        # will make everything bigger and allow us to detect more faces.
+        dets = detector(img, 1)
+        nFaces=len(dets)
+        print("Number of faces detected: {}".format(nFaces))
+    
+        # Now process each face we found.
+        for k, d in enumerate(dets):
+            print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(
+                k, d.left(), d.top(), d.right(), d.bottom()))
+            #roi=img0[d.top():d.bottom(),d.left():d.right()]
+            #cv2.imshow("roi",roi)
+            # Get the landmarks/parts for the face in box d.
+            shape = sp(img, d)
+            # Draw the face landmarks on the screen so we can see what face is currently being processed.
+            #win.clear_overlay()
+            win.add_overlay(d);
+            win.add_overlay(shape)
+    
+            # Compute the 128D vector that describes the face in img identified by
+            # shape.  In general, if two face descriptor vectors have a Euclidean
+            # distance between them less than 0.6 then they are from the same
+            # person, otherwise they are from different people.  He we just print
+            # the vector to the screen.
+            face_descriptor = facerec.compute_face_descriptor(img, shape);
+            face_descriptor_list.append(face_descriptor)
+            #print(face_descriptor);
+            # It should also be noted that you can also call this function like this:
+            #  face_descriptor = facerec.compute_face_descriptor(img, shape, 100);
+            # The version of the call without the 100 gets 99.13% accuracy on LFW
+            # while the version with 100 gets 99.38%.  However, the 100 makes the
+            # call 100x slower to execute, so choose whatever version you like.  To
+            # explain a little, the 3rd argument tells the code how many times to
+            # jitter/resample the image.  When you set it to 100 it executes the
+            # face descriptor extraction 100 times on slightly modified versions of
+            # the face and returns the average result.  You could also pick a more
+            # middle value, such as 10, which is only 10x slower but still gets an
+            # LFW accuracy of 99.3%.
+    
+    
+            #cv2.waitKey(1)
+            #dlib.hit_enter_to_continue()
+    people_descriptor[p]=face_descriptor_list
+pickle.dump(people_descriptor,open("people_descriptor.pk","wb"))
 
 
