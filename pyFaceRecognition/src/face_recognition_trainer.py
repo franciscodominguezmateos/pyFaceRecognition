@@ -53,27 +53,28 @@ from skimage import io
 import cv2
 import numpy as np
 import pickle
+import json
 
 print dlib.__version__
 print dlib.__file__
-print dlib.__path__
+#print dlib.__path__
 from distutils.sysconfig import get_python_lib
 print(get_python_lib())
 
-basepath="/home/francisco/face_recognition"
+basepath="/home/ubuntu/face_recognition"
 people= os.listdir(basepath)
 
-if len(sys.argv) != 3:
-    print(
-        "Call this program like this:\n"
-        "   ./face_recognition.py shape_predictor_68_face_landmarks.dat dlib_face_recognition_resnet_model_v1.dat ../examples/faces\n"
-        "You can download a trained facial shape predictor and recognition model from:\n"
-        "    http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n"
-        "    http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2")
-    exit()
+#if len(sys.argv) != 3:
+#    print(
+#        "Call this program like this:\n"
+#        "   ./face_recognition.py shape_predictor_68_face_landmarks.dat #dlib_face_recognition_resnet_model_v1.dat ../examples/faces\n"
+#        "You can download a trained facial shape predictor and recognition model from:\n"
+#        "    http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n"
+#        "    http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2")
+#    exit()
 
-predictor_path = sys.argv[1]
-face_rec_model_path = sys.argv[2]
+predictor_path =  "shape_predictor_68_face_landmarks.dat"
+face_rec_model_path =  "dlib_face_recognition_resnet_model_v1.dat"
 faces_folder_path = basepath+"/carlos_dominguez"
 
 # Load all the models we need: a detector to find the faces, a shape predictor
@@ -124,7 +125,7 @@ for p in people:
             # person, otherwise they are from different people.  He we just print
             # the vector to the screen.
             face_descriptor = facerec.compute_face_descriptor(img, shape);
-            face_descriptor_list.append(face_descriptor)
+            face_descriptor_list.append(np.array(face_descriptor))
             #print(face_descriptor);
             # It should also be noted that you can also call this function like this:
             #  face_descriptor = facerec.compute_face_descriptor(img, shape, 100);
@@ -141,7 +142,10 @@ for p in people:
     
             #cv2.waitKey(1)
             #dlib.hit_enter_to_continue()
-    people_descriptor[p]=face_descriptor_list
+        people_descriptor[p]=face_descriptor_list
+#print json.dumps(people_descriptor)
 pickle.dump(people_descriptor,open("people_descriptor.pk","wb"))
+b=pickle.load(open("people_descriptor.pk","rb"))
+print b.keys()
 
 

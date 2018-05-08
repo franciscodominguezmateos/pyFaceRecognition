@@ -55,16 +55,27 @@ import numpy as np
 import pickle
 from time import sleep
 
+print dlib.__version__
+print dlib.__file__
+#print dlib.__path__
+from distutils.sysconfig import get_python_lib
+print(get_python_lib())
+
 win = dlib.image_window()
 class FaceRecognizer:
     def __init__(self,
                  predictor_path="shape_predictor_68_face_landmarks.dat",
                  face_rec_model_path="dlib_face_recognition_resnet_model_v1.dat",
                  people_descriptor_file_name="people_descriptor.pk"):
+	print "begin construtor"
         self.detector = dlib.get_frontal_face_detector()
+	print "begin get_frontal_face_detector"
         self.sp = dlib.shape_predictor(predictor_path)
+	print "begin face_recognition_model_v1"
         self.facerec = dlib.face_recognition_model_v1(face_rec_model_path)
+	print "begin people_descriptor_file_name"
         self.people_descriptor=pickle.load(open(people_descriptor_file_name,"rb"))
+	print "endconstrutor"
         self.verbose=False
     def recognizer(self,img):
         win.clear_overlay()
@@ -130,9 +141,9 @@ def capture():
             
     
 fr=FaceRecognizer()  
-f="/home/francisco/face_recognition/marisa_cea/face2.jpg"
+f="~/face_recognition/marisa_cea/face2.jpg"
 print("Processing file: {}".format(f))
-img = io.imread(f)
+#img = io.imread(f)
 #cap0 = cv2.VideoCapture("http://192.168.43.240:8080/video")
 cap0 = cv2.VideoCapture(0)
 ret,img0=cap0.read()
@@ -152,6 +163,9 @@ while True:
             command='~/di.sh "Hola. Tu eres %s."'%name
             os.system(command)
         #captureProcessed=True
+
+    
+
 
 
 
