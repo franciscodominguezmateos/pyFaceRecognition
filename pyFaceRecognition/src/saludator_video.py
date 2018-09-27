@@ -48,6 +48,7 @@
 
 import sys
 import datetime
+
 import os
 import dlib
 import glob
@@ -148,7 +149,7 @@ def nombreDia():
     if h>=21 or h<6:
         return "Buenas noches"
     if h>=6 and h<=14:
-        return "Buenos días"            
+        return "Buenos días"
     
 fr=FaceRecognizer()  
 f="~/face_recognition/marisa_cea/face2.jpg"
@@ -170,7 +171,7 @@ while True:
         for name in faces:
             print name,faces[name]
             name=name.replace("_"," ")
-            command='~/di.sh "Hola. Tu eres %s. %s."'%(name,nombreDia())
+            command='~/di.sh "Hola. %s."'%nombreDia()
             os.system(command)
         #captureProcessed=True
 
