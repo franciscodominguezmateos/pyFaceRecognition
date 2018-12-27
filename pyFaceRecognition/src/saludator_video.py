@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # The contents of this file are in the public domain. See LICENSE_FOR_EXAMPLE_PROGRAMS.txt
 #
 #   This example shows how to use dlib's face recognition tool.  This tool maps
@@ -46,6 +47,8 @@
 #   Or downloaded from http://scikit-image.org/download.html. 
 
 import sys
+import datetime
+
 import os
 import dlib
 import glob
@@ -55,16 +58,27 @@ import numpy as np
 import pickle
 from time import sleep
 
+print dlib.__version__
+print dlib.__file__
+#print dlib.__path__
+from distutils.sysconfig import get_python_lib
+print(get_python_lib())
+
 win = dlib.image_window()
 class FaceRecognizer:
     def __init__(self,
                  predictor_path="shape_predictor_68_face_landmarks.dat",
                  face_rec_model_path="dlib_face_recognition_resnet_model_v1.dat",
                  people_descriptor_file_name="people_descriptor.pk"):
+	print "begin construtor"
         self.detector = dlib.get_frontal_face_detector()
+	print "begin get_frontal_face_detector"
         self.sp = dlib.shape_predictor(predictor_path)
+	print "begin face_recognition_model_v1"
         self.facerec = dlib.face_recognition_model_v1(face_rec_model_path)
+	print "begin people_descriptor_file_name"
         self.people_descriptor=pickle.load(open(people_descriptor_file_name,"rb"))
+	print "endconstrutor"
         self.verbose=False
     def recognizer(self,img):
         win.clear_overlay()
@@ -127,13 +141,21 @@ def capture():
 #                 img=cv2.cvtColor(img0,cv2.COLOR_BGR2RGB)
 #                 capturedImage=True
 #                 captureProcessed=False
-            
+
+def nombreDia():
+    h=datetime.datetime.now().hour
+    if h>14 and h<21:
+        return "Buenas tardes"
+    if h>=21 or h<6:
+        return "Buenas noches"
+    if h>=6 and h<=14:
+        return "Buenos días"
     
 fr=FaceRecognizer()  
-f="/home/francisco/face_recognition/marisa_cea/face2.jpg"
+f="~/face_recognition/marisa_cea/face2.jpg"
 print("Processing file: {}".format(f))
-img = io.imread(f)
-#cap0 = cv2.VideoCapture("http://192.168.100.15:8080/video")
+#img = io.imread(f)
+#cap0 = cv2.VideoCapture("http://192.168.43.240:8080/video")
 cap0 = cv2.VideoCapture(0)
 ret,img0=cap0.read()
 if not ret:
@@ -149,10 +171,12 @@ while True:
         for name in faces:
             print name,faces[name]
             name=name.replace("_"," ")
-            command='~/di.sh "Hola. Tu eres %s."'%name
+            command='~/di.sh "Hola. %s."'%nombreDia()
             os.system(command)
         #captureProcessed=True
-        if cv2.waitKey(1)==27:
-            break
+
+    
+
+
 
 
