@@ -133,7 +133,7 @@ fr=FaceRecognizer()
 f="/home/francisco/face_recognition/marisa_cea/face2.jpg"
 print("Processing file: {}".format(f))
 img = io.imread(f)
-#cap0 = cv2.VideoCapture("http://192.168.43.240:8080/video")
+#cap0 = cv2.VideoCapture("http://192.168.100.15:8080/video")
 cap0 = cv2.VideoCapture(0)
 ret,img0=cap0.read()
 if not ret:
@@ -152,6 +152,7 @@ while True:
             command='~/di.sh "Hola. Tu eres %s."'%name
             os.system(command)
         #captureProcessed=True
-
+        if cv2.waitKey(1)==27:
+            break
 
 

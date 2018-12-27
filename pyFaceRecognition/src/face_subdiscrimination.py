@@ -220,19 +220,31 @@ for i in range(7):
 #     print     
 #       
 faces_des_all_idx=[(person,i,faces[i][person]) for i in range(7) for person in range(10) ]
+#add mean face as 8th mood
+for i in range(10):
+    faces_des_all_idx.append((i,8,meanPerson[i]))
 personId         =np.array([ d[0] for d in faces_des_all_idx])
 moodId           =np.array([ d[1] for d in faces_des_all_idx])
 faces_des_all    =np.array([ d[2] for d in faces_des_all_idx])
 idxs=personId
 #print idxs
 #print faces_des_all
+#X_embedded = TSNE(n_components=2,perplexity=5,method='exact').fit_transform(faces_des_all)
 X_embedded = TSNE(n_components=2,perplexity=5).fit_transform(faces_des_all)
 print "emb",X_embedded.shape
 
-colors = 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', 'orange', 'purple'
+colors = 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', 'orange', 'purple','red'
 for i in range(max(idxs)):
     #idx=idxs==i
-    plt.scatter(X_embedded[idxs==i, 0], X_embedded[idxs==i, 1],c=colors[i],label=i)
+    if i>4:
+        mk='s'
+    else:
+        mk='o'
+    plt.scatter(X_embedded[idxs[:70]==i, 0], X_embedded[idxs[:70]==i, 1],marker=mk,c=colors[i],label=i)
+#Mean faces are from 70 to 80
+idxs[:70]=100
+for i in range(10):
+    plt.scatter(X_embedded[idxs==i, 0], X_embedded[idxs==i, 1],marker='D',c=colors[i],label=i)
 plt.legend(bbox_to_anchor=(1, 1))
 
 
@@ -252,7 +264,7 @@ for k in range(7):
     for person in range(10):
         lDifMean.append([person,k,dFaceMean(person,k)])
 #Female vs all
-print "Female vs all"
+print "Difference Female vs all"
 print " ",
 for person0 in range(10):
     print "%03.2f" % person0,
@@ -323,21 +335,29 @@ for person in range(1,5):
     meanHappyFemale+=faces[happy][person]
     print "meanHappy descriptor length=",person,np.linalg.norm(meanHappyFemale),np.linalg.norm(meanPerson[person])
 meanHappyFemale/=5
+meanHappyMale=faces[happy][5].copy()
+for person in range(6,10):
+    meanHappyMale+=faces[happy][person]
+    print "meanHappy descriptor length=",person,np.linalg.norm(meanHappyMale),np.linalg.norm(meanPerson[person])
+meanHappyMale/=5
 print "meanHappy descriptor length=",np.linalg.norm(meanHappyFemale)
-print "Happy vs all"
+print "HappyFemale vs female and HappyMale vs male"
 print " ",
 for person0 in range(10):
     print "%03.2f" % person0,
 print
 for k in range(7):
     print k,
-    for person in range(10):
+    for person in range(5):
         d=distance(meanHappyFemale,faces[k][person])
+        print "%03.2f" % d,
+    for person in range(5,10):
+        d=distance(meanHappyMale,faces[k][person])
         print "%03.2f" % d,
     print  
 
 
 plt.show()
-dlib.hit_enter_to_continue()
+#dlib.hit_enter_to_continue()
 
 
