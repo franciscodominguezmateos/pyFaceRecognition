@@ -53,7 +53,9 @@ from skimage import io
 import cv2
 import numpy as np
 import pickle
+from time import sleep
 
+win = dlib.image_window()
 class FaceRecognizer:
     def __init__(self,
                  predictor_path="shape_predictor_68_face_landmarks.dat",
@@ -65,7 +67,6 @@ class FaceRecognizer:
         self.people_descriptor=pickle.load(open(people_descriptor_file_name,"rb"))
         self.verbose=False
     def recognizer(self,img):
-        win = dlib.image_window()
         win.clear_overlay()
         win.set_image(img)
         
@@ -110,17 +111,39 @@ class FaceRecognizer:
             faces[minK]=(minP,d,shape)
         return faces
 
+import thread
+captureProcessed=False
+
+def capture():
+    global captureProcessed,img,img0
+    while True:
+        #print captureProcessed
+        ret,img0=cap0.read()
+#         if not ret:
+#             print "Error al capturar imagen"
+#         else:
+#             if captureProcessed==True:
+#                 #print "Capturando"
+#                 img=cv2.cvtColor(img0,cv2.COLOR_BGR2RGB)
+#                 capturedImage=True
+#                 captureProcessed=False
+            
+    
 fr=FaceRecognizer()  
 f="/home/francisco/face_recognition/marisa_cea/face2.jpg"
 print("Processing file: {}".format(f))
 img = io.imread(f)
+#cap0 = cv2.VideoCapture("http://192.168.43.240:8080/video")
+cap0 = cv2.VideoCapture(0)
+ret,img0=cap0.read()
+if not ret:
+    print "Error al capturar imagen"
+else:
+        img=cv2.cvtColor(img0,cv2.COLOR_BGR2RGB)
+thread.start_new_thread(capture,())
 while True:
-    #cap0 = cv2.VideoCapture("http://192.168.43.240:8080/video")
-    cap0 = cv2.VideoCapture(0)
-    ret,img0=cap0.read()
-    if not ret:
-        print "Error al capturar imagen"
-    else:
+    if not captureProcessed:
+        #now img is global var
         img=cv2.cvtColor(img0,cv2.COLOR_BGR2RGB)
         faces=fr.recognizer(img)
         for name in faces:
@@ -128,7 +151,7 @@ while True:
             name=name.replace("_"," ")
             command='~/di.sh "Hola. Tu eres %s."'%name
             os.system(command)
-    
+        #captureProcessed=True
 
 
 
