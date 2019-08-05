@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # The contents of this file are in the public domain. See LICENSE_FOR_EXAMPLE_PROGRAMS.txt
 #
 #   This example shows how to use dlib's face recognition tool.  This tool maps
@@ -198,7 +199,7 @@ for k in range(7):
             print "%03.2f" % d,
         print
   
-print "Distance to mood"
+print "Distance to mood normal"
 k=normal
 for person0 in range(10):
     for person1 in range(10):
@@ -206,6 +207,7 @@ for person0 in range(10):
         print "%3.2f" % d,
     print
 
+print "Distance to person 0"
 person=0
 for i in range(7):
     for j in range(7):
@@ -248,15 +250,19 @@ for i in range(10):
 plt.legend(bbox_to_anchor=(1, 1))
 
 
+
+# Main hipothesis intra discrimination from difference vectors
+# 18-07-2019 as we can see it doesn¡t seem to work
+# since the happy difference vector doesn't seem to be nearest from eachother
 def dFaceNormal(person,mood):
     n=np.array(faces[normal][person])
     m=np.array(faces[mood][person])
-    return n-m
+    return m-n
 
 def dFaceMean(person,mood):
     n=meanPerson[person]
     m=np.array(faces[mood][person])
-    return n-m
+    return m-n
 
 #Lets play now with mean-mood difference vector
 lDifMean=[]
@@ -264,7 +270,7 @@ for k in range(7):
     for person in range(10):
         lDifMean.append([person,k,dFaceMean(person,k)])
 #Female vs all
-print "Difference Female vs all"
+print "Difference person 0 (female) normal-happy vs all person-mood"
 print " ",
 for person0 in range(10):
     print "%03.2f" % person0,
@@ -276,7 +282,20 @@ for k in range(7):
         print "%03.2f" % d,
     print    
   
+print "Difference person 0 (female) mean-happy vs all person-mood"
+print " ",  
+for person0 in range(10):
+    print "%03.2f" % person0,
+print
+for k in range(7):
+    print k,
+    for person in range(10):
+        d=distance(dFaceMean(0,happy),dFaceMean(person,k))
+        print "%03.2f" % d,
+    print  
 
+# dSahd0-dShad1 and dHappy1-dHappy0 should be more near thant the other
+# but that is not the case
 dHappy0=dFaceMean(0,happy)
 dShad0 =dFaceMean(0,shad)
 dHappy1=dFaceMean(1,happy)
@@ -301,8 +320,11 @@ for person in range(6,10):
 meanMale/=5
 print "meanMale descriptor length=",np.linalg.norm(meanMale)
 
+# Extra class discrimination seem to work for malel vs female
 #Female vs all
+print "***************************"
 print "Female vs all"
+print "***************************"
 print " ",
 for person0 in range(10):
     print "%03.2f" % person0,
@@ -315,7 +337,9 @@ for k in range(7):
     print    
 
 #Male vs all
+print "***************************"
 print "Male vs all"
+print "***************************"
 print " ",
 for person0 in range(10):
     print "%03.2f" % person0,
@@ -326,36 +350,77 @@ for k in range(7):
         d=distance(meanMale,faces[k][person])
         print "%03.2f" % d,
     print    
-    
+print "We can see that extra class discrimination works for male vs female"
+print "it could work for other extra classification tasks."
+print   
 #HappyFemale mean vs all 
 #This doesn't seem to work but discriminates female from male
 print "Happy mean face desriptor"
+meanHappy=faces[happy][0].copy()
+for person in range(1,10):
+    meanHappy+=faces[happy][person]
+meanHappy/=10
+print "meanHappy descriptor length=",np.linalg.norm(meanHappy)
+print "Happy mean female face descriptors"
 meanHappyFemale=faces[happy][0].copy()
 for person in range(1,5):
     meanHappyFemale+=faces[happy][person]
-    print "meanHappy descriptor length=",person,np.linalg.norm(meanHappyFemale),np.linalg.norm(meanPerson[person])
+    #print "meanHappy descriptor length=",person,np.linalg.norm(meanHappyFemale),np.linalg.norm(meanPerson[person])
 meanHappyFemale/=5
+print "meanHappyFemale descriptor length=",np.linalg.norm(meanHappyFemale)
+print "Happy mean male face desriptors"
 meanHappyMale=faces[happy][5].copy()
 for person in range(6,10):
     meanHappyMale+=faces[happy][person]
-    print "meanHappy descriptor length=",person,np.linalg.norm(meanHappyMale),np.linalg.norm(meanPerson[person])
+    #print "meanHappy descriptor length=",person,np.linalg.norm(meanHappyMale),np.linalg.norm(meanPerson[person])
 meanHappyMale/=5
-print "meanHappy descriptor length=",np.linalg.norm(meanHappyFemale)
-print "HappyFemale vs female and HappyMale vs male"
+print "meanHappyMale descriptor length=",np.linalg.norm(meanHappyMale)
+
+print "***************************"
+print "Happy vs other moods"
+print "***************************"
 print " ",
 for person0 in range(10):
     print "%03.2f" % person0,
 print
 for k in range(7):
     print k,
-    for person in range(5):
+    for person in range(10):
+        d=distance(meanHappy,faces[k][person])
+        print "%03.2f" % d, 
+    print
+print "Seem to work fine for male"
+print
+print "***************************"
+print "HappyFemale vs female"
+print "***************************"
+print " ",
+for person0 in range(10):
+    print "%03.2f" % person0,
+print
+for k in range(7):
+    print k,
+    for person in range(10):
         d=distance(meanHappyFemale,faces[k][person])
-        print "%03.2f" % d,
-    for person in range(5,10):
+        print "%03.2f" % d, 
+    print
+
+print "***************************"
+print "HappyMale vs male"
+print "***************************"
+print " ",
+for person0 in range(10):
+    print "%03.2f" % person0,
+print
+for k in range(7):
+    print k,
+    for person in range(0,10):
         d=distance(meanHappyMale,faces[k][person])
         print "%03.2f" % d,
     print  
 
+print """ it seem that it would work with more samples for each mood and person,
+sure same mood of same person are more near than different mood of same person"""
 
 plt.show()
 #dlib.hit_enter_to_continue()
