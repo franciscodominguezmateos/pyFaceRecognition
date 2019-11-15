@@ -149,7 +149,8 @@ while True:
         for name in faces:
             print name,faces[name]
             name=name.replace("_"," ")
-            command='~/di.sh "Hola. Tu eres %s."'%name
+            #command='~/di.sh "Hola. Tu eres %s."'%name
+            command='~/say.sh "Hello. You are %s."'%name
             os.system(command)
         #captureProcessed=True
 
